@@ -1,0 +1,12 @@
+version: "2.3"
+
+services:
+    dev:
+        container_name: biomassters-dev
+        image: biomassters:0.1
+        volumes:
+            - ./:/workspace
+        working_dir: /workspace
+        ipc: host
+        runtime: nvidia
+        command: sleep infinity
