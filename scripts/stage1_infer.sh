@@ -1,0 +1,1 @@
+conda run -n ml python -m src.train --config=configs/stage1_prediction.yml
