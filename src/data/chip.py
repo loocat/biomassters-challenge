@@ -70,7 +70,7 @@ def load_chip_data(challenge, s3paths, nworkers=4):
 
 def preprocess_chip_data(challenge, chip_id):
 
-  process_dir = challenge.base_dir/'processed'
+  process_dir = challenge.subdir('processed')
   processed = process_dir/f'{chip_id}_feat.tif'
 
   s3paths_input, s3path_output = challenge.get_item(chip_id)

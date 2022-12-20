@@ -107,8 +107,8 @@ class ChallengeData(ChallengeCache):
         self._s3path = f"s3path_{config.s3region}"
         self._s3prefix = f"s3://{config.s3bucket}-{config.s3region}"
         self._id_str = config.id_str
-        self._nodata = config.nodata
 
+        self.nodata = config.nodata
         self.df_meta = self._read_meta(self._s3prefix, config.metadata)
 
         df_fold_path = self._base / 'image_folds.csv'
@@ -117,6 +117,11 @@ class ChallengeData(ChallengeCache):
         else:
             self.df_fold = self._make_folds(config.nfolds)
             self.df_fold.to_csv(df_fold_path)
+
+    def subdir(self, name):
+        child = self._base/name
+        child.mkdir(exist_ok=True)
+        return child
 
     def resolve(self, path):
         path = path if isinstance(path, Path) else Path(path)
