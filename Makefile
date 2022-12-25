@@ -4,6 +4,7 @@ GID := $(shell id -g)
 include $(CURDIR)/common.mk
 
 DOCKER_COMPOSE := ~/.docker/cli-plugins/docker-compose
+DOCKER_EXEC := docker exec --env-file=scripts/env -t biomassters-dev conda run -n ml
 
 infer: stage1_infer
 
@@ -38,7 +39,7 @@ start:
 	$(DOCKER_COMPOSE) up -d
 
 install:
-	docker exec biomassters-dev conda run -n ml pip3 install --no-cache-dir --verbose -r requirements.txt --user 
+	$(DOCKER_EXEC) pip3 install --no-cache-dir --verbose -r requirements.txt --user 
 
 clean:
 	$(DOCKER_COMPOSE) down
@@ -46,10 +47,10 @@ clean:
 stage1: stage1_ready stage1_train stage1_infer
 
 stage1_ready:
-	docker exec -t biomassters-dev conda run -n ml bash scripts/stage1_ready.sh
+	$(DOCKER_EXEC) bash scripts/stage1_ready.sh
 
 stage1_train:
-	docker exec -t biomassters-dev conda run -n ml bash scripts/stage1_train.sh
+	$(DOCKER_EXEC) bash scripts/stage1_train.sh
 
 stage1_infer:
-	docker exec -t biomassters-dev conda run -n ml bash scripts/stage1_infer.sh
+	$(DOCKER_EXEC) bash scripts/stage1_infer.sh

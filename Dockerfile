@@ -1,7 +1,9 @@
 ARG BASE_IMAGE=nvcr.io/nvidia/l4t-base:r32.7.1
 FROM ${BASE_IMAGE}
 
-## Base packages for ubuntu
+#
+# Base packages for ubuntu
+#
 RUN apt-get clean && \
     apt-get update -qq && \
     apt-get install -y \
@@ -25,15 +27,9 @@ RUN apt-get clean && \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
-# ## Download and install miniforge
-# RUN wget -O /tmp/miniforge.sh https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-aarch64.sh
-# RUN /bin/bash /tmp/miniforge.sh -bf -p /opt/conda && \
-#     rm /tmp/miniforge.sh && \
-#     echo "export PATH=/opt/conda/bin:$PATH" > /etc/profile.d/conda.sh
-# ENV PATH /opt/conda/bin:$PATH
-
-# download and install mambaforge
-# RUN wget -O /tmp/miniforge.sh https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-Linux-aarch64.sh
+#
+# Download and install mambaforge
+#
 RUN wget -O /tmp/miniforge.sh https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-pypy3-Linux-aarch64.sh
 RUN /bin/bash /tmp/miniforge.sh -bf -p /opt/conda && \
     rm /tmp/miniforge.sh && \
@@ -41,8 +37,7 @@ RUN /bin/bash /tmp/miniforge.sh -bf -p /opt/conda && \
 
 #
 # Install python and upgrade pip version
-# RUN conda install -c conda-forge -y 'python>=3.6,<3.7' && \
-#     pip install --upgrade pip
+#
 ENV PATH=/opt/conda/bin:$PATH
 RUN conda create --no-default-packages -n ml python=3.6.9
 SHELL ["conda", "run", "-n", "ml", "/bin/bash", "-c"]
@@ -80,13 +75,6 @@ RUN pip3 install --no-cache-dir --verbose numpy
 #
 ARG PYTORCH_URL=https://nvidia.box.com/shared/static/fjtbno0vpo676a25cgvuqc1wty0fkkg6.whl
 ARG PYTORCH_WHL=torch-1.10.0-cp36-cp36m-linux_aarch64.whl
-
-# ARG PYTORCH_URL=https://nvidia.box.com/shared/static/3ibazbiwtkl181n95n9em3wtrca7tdzp.whl
-# ARG PYTORCH_WHL=torch-1.5.0-cp36-cp36m-linux_aarch64.whl
-
-# ARG PYTORCH_URL=https://nvidia.box.com/shared/static/lufbgr3xu2uha40cs9ryq1zn4kxsnogl.whl
-# ARG PYTORCH_WHL=torch-1.2.0-cp36-cp36m-linux_aarch64.whl
-
 RUN wget --quiet --show-progress --progress=bar:force:noscroll --no-check-certificate ${PYTORCH_URL} -O ${PYTORCH_WHL} && \
     pip3 install --no-cache-dir --verbose ${PYTORCH_WHL} && \
     rm ${PYTORCH_WHL}
@@ -95,7 +83,6 @@ RUN wget --quiet --show-progress --progress=bar:force:noscroll --no-check-certif
 # Install torchvision 0.11.1
 #
 ARG TORCHVISION_VERSION=v0.11.1
-# ARG TORCH_CUDA_ARCH_LIST="5.3;6.2;7.2;8.7;10.2"
 ARG TORCH_CUDA_ARCH_LIST="5.3;6.2;7.2"
 
 RUN printenv && \
@@ -119,9 +106,10 @@ RUN git clone https://github.com/pytorch/vision torchvision && \
     cd ../ && \
     rm -rf torchvision
 
-# prevent python version conflict: future annotation
+#
+# Prevent python version conflict: future annotation
+#
 RUN pip3 install --no-cache-dir --verbose 'pillow<8'
-
 
 #
 # PyCUDA
@@ -129,27 +117,19 @@ RUN pip3 install --no-cache-dir --verbose 'pillow<8'
 ENV PATH="/usr/local/cuda/bin:${PATH}"
 ENV LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
 RUN echo "$PATH" && echo "$LD_LIBRARY_PATH"
-
 RUN pip3 install --no-cache-dir --verbose pycuda six
 
-
 # 
-# install OpenCV (with CUDA)
+# Install OpenCV (with CUDA)
 #
 ARG OPENCV_URL=https://nvidia.box.com/shared/static/5v89u6g5rb62fpz4lh0rz531ajo2t5ef.gz
 ARG OPENCV_DEB=OpenCV-4.5.0-aarch64.tar.gz
-
 COPY scripts/opencv_install.sh /tmp/opencv_install.sh
 RUN cd /tmp && ./opencv_install.sh ${OPENCV_URL} ${OPENCV_DEB}
 
-
-# # #
-# # # tensorflow 2.7.0 for python3
-# # #
-# # ENV PYTHON3_VERSION=3.6
-# # COPY --from=tensorflow \
-# #     /usr/local/lib/python${PYTHON3_VERSION}/dist-packages/ \
-# #     /usr/local/lib/python${PYTHON3_VERSION}/dist-packages/
+#
+# Tensorflow 2.7.0 for python3
+#
 RUN apt update && \
     apt install -y \
         libhdf5-serial-dev \
@@ -164,55 +144,26 @@ RUN apt update && \
     rm -rf /var/lib/apt/lists/* \
     apt-get clean
 
-#
-# python pip packages
-#
-# # RUN pip3 install --no-cache-dir --verbose testresources
-# RUN pip3 install --no-cache-dir --verbose 'h5py<=3.1.0'
-# # RUN pip3 install --no-cache-dir --verbose keras_preprocessing==1.1.2 keras_applications==1.0.8 gast==0.4.0
-# RUN pip3 install --no-cache-dir --verbose \
-#     keras_preprocessing keras_applications gast \
-#     opt_einsum astunparse flatbuffers
-# # RUN pip3 install --no-cache-dir --ignore-installed pybind11 
-# # RUN pip3 install --no-cache-dir --verbose onnx
-# # RUN pip3 install --no-cache-dir --verbose scipy
-# # RUN pip3 install --no-cache-dir --verbose scikit-learn
-# # RUN pip3 install --no-cache-dir --verbose pandas
-# # RUN pip3 install --no-cache-dir --verbose pycuda
-# # RUN pip3 install --no-cache-dir --verbose numba
 RUN pip3 install --no-cache-dir --verbose \
     --no-deps \
     --extra-index-url https://developer.download.nvidia.com/compute/redist/jp/v461 \
     tensorflow==2.7.0
 
-# #
-# # Setup order is important (GDAL, Rasterio, OpenCV)! - otherwise it won't import due to dependency conflict
-# RUN add-apt-repository ppa:ubuntugis/ppa \
-# && apt-get update \
-# && apt-get install -y python-numpy gdal-bin libgdal-dev \
-# && pip install \
-#    "opencv-python>=3.4.1.5,<3.5" \
-#    "rasterio>=1.0b2,<1.3"
+#
+# Install GDAL
+#
 RUN apt update && \
     apt install -y gdal-bin libgdal-dev && \
     rm -rf /var/lib/apt/lists/* && \
     apt-get clean
 
-# RUN pip3 install --no-cache-dir --verbose rasterio==1.8
-
-# ### Build libspatialindex from source because conda's libspatialindex conflicts with GDAL
-# #RUN wget http://download.osgeo.org/libspatialindex/spatialindex-src-1.8.5.tar.gz -O /tmp/spatialindex-src.tar.gz && \
-# #    tar -xvf /tmp/spatialindex-src.tar.gz -C /tmp
-# #WORKDIR /tmp/spatialindex-src-1.8.5
-# #RUN ./configure && make && make install && ldconfig && pip install Rtree==0.8.3
-
+#
+# Create the default user
+#
 ENV USERNAME=user
 ENV USER_UID=1000
 ENV USER_GID=$USER_UID
 
-RUN echo "$USERNAME $USER_UID $USER_GID"
-
-# Create the user
 RUN groupadd --gid $USER_GID $USERNAME \
     && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
     #
