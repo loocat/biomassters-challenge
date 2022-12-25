@@ -234,7 +234,7 @@ class ChallengeData(ChallengeCache):
         for name in names:
             stat = {}
             for sentinel in ('s1', 's2'):
-                cols = [f"{name}_b{i}" for i in range(len(self._nodata[sentinel]))]
+                cols = [f"{name}_b{i}" for i in range(len(self.nodata[sentinel]))]
                 rows = df.satellite == sentinel.upper()
                 if df.loc[(rows, cols)].size > 0:
                     vals = df.loc[(rows, cols)].mean().values

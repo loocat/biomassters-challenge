@@ -44,16 +44,15 @@ def main(cfg):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model = getters.get_model(architecture=cfg.model.architecture, init_params=cfg.model.init_params)
 
-    print('Moving model to device...')
-    model.to(device)
-
     print('Collecting model parameters...')
     params = model.parameters()
 
     if len(cfg.gpus) > 1:
         print("Creating DataParallel Model on gpus:", cfg.gpus)
-        model = torch.nn.DataParallel(model)
-        model.to(device)
+        model = torch.nn.DataParallel(model, cfg.gpus)
+
+    print('Moving model to device...')
+    model.to(device)
 
     # --------------------------------------------------
     # define datasets and dataloaders
