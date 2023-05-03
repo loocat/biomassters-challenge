@@ -34,12 +34,12 @@ def save_config(config, directory, name='config.yml'):
         yaml.dump(config, f)
 
 
-def parse_config(**kwargs):
+def parse_config(path, **kwargs):
     # get config path
-    cfg_path = kwargs["config"]
+    # cfg_path = kwargs["config"]
 
     # read config
-    with open(cfg_path) as cfg:
+    with open(path) as cfg:
         cfg_yaml = yaml.load(cfg, Loader=yaml.FullLoader)
 
     # override passed parameters in config

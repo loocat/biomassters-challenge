@@ -41,7 +41,7 @@ class EnsembleModel(torch.nn.Module):
 
 def model_from_config(path: str):
     """Create model from configuration specified in config file and load checkpoint weights"""
-    cfg = addict.Dict(parse_config(config=path))  # read and parse config file
+    cfg = addict.Dict(parse_config(path))  # read and parse config file
     init_params = cfg.model.init_params  # extract model initialization parameters
     init_params["encoder_weights"] = None  # because we will load pretrained weights for whole model
     model = getters.get_model(architecture=cfg.model.architecture, init_params=init_params)

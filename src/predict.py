@@ -39,7 +39,7 @@ class EnsembleModel(torch.nn.Module):
 
 
 def model_from_config(path: str, device):
-    cfg = addict.Dict(parse_config(config=path))
+    cfg = addict.Dict(parse_config(path))
     init_params = cfg.model.init_params
     init_params.encoder_weights = None
     model = getters.get_model(
@@ -78,7 +78,7 @@ def main(args):
     challenge = ChallengeData(args.challenge)
 
     # set GPUS
-    os.environ["CUDA_VISIBLE_DEVICES"] = ','.join(map(str, cfg.gpus)) if cfg.get("gpus") else ""
+    os.environ["CUDA_VISIBLE_DEVICES"] = ','.join(map(str, args.gpus)) if args.get("gpus") else ""
     
 
     # --------------------------------------------------
